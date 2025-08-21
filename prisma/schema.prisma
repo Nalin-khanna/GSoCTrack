@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id          Int        @id @default(autoincrement())
+  name        String
+  url         String
+  imageUrl    String?
+  imageBg     String?     // image_background_color
+  description String?
+  category    String?
+  contactEmail String?
+  ircChannel   String?
+  mailingList  String?
+  ideasUrl     String?
+  guideUrl     String?
+  githubUrl    String?
+  repos   Repo[]
+  topics        String
+  technologies  String[]
+  years         Int
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Issue {
+  id          Int    @id @default(autoincrement())
+  repoId      Int
+  repo        Repo   @relation(fields: [repoId], references: [id])
+  title       String
+  number      Int      // GitHub issue number
+  url         String @unique
+  labels      String? 
+  authorLogin String
+  authorUrl   String?
+  createdAt   DateTime
+  updatedAt   DateTime
+}
+model Repo {
+  id              Int       @id @default(autoincrement())
+  name            String
+  url             String    @unique
+  description     String?
+  language        String?
+
+  organizationId  Int
+  organization    Organization @relation(fields: [organizationId], references: [id])
+
+  issues          Issue[]    // relation to issues
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+}
