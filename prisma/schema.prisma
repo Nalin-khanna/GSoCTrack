@@ -22,16 +22,11 @@ model Organization {
   imageBg     String?     // image_background_color
   description String?
   category    String?
-  contactEmail String?
-  ircChannel   String?
-  mailingList  String?
-  ideasUrl     String?
-  guideUrl     String?
   githubUrl    String?
   repos   Repo[]
-  topics        String
+  topics        String[]
   technologies  String[]
-  years         Int
+  years         Int[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -42,6 +37,7 @@ model Issue {
   repo        Repo   @relation(fields: [repoId], references: [id])
   title       String
   number      Int      // GitHub issue number
+  assigned    Boolean  // wether the issue is assigned to someone or not
   url         String @unique
   labels      String? 
   authorLogin String
@@ -54,8 +50,7 @@ model Repo {
   name            String
   url             String    @unique
   description     String?
-  language        String?
-
+  forks_count     Int
   organizationId  Int
   organization    Organization @relation(fields: [organizationId], references: [id])
 
