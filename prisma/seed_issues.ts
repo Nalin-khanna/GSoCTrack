@@ -34,7 +34,8 @@ async function seedIssues(){
                     repoId : repo.id,
                     assigned : issue.assignee ? true : false,
                     authorLogin : issue.user.login
-                }))
+                })),
+                skipDuplicates : true
             })
         }
         catch(e){
