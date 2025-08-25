@@ -1,21 +1,20 @@
-import { PrismaClient, Prisma } from "../app/generated/prisma";
+import { db } from "@/lib/prisma";
 import { Octokit } from "@octokit/rest";
-
-const prisma = new PrismaClient();
+import { Repo } from "@/app/generated/prisma";
 
 const octokit = new Octokit({ 
     auth: process.env.GITHUB_TOKEN,
 });
 
 async function seedIssues(){
-    const repos = await prisma.repo.findMany(
+    const repos = await db.repo.findMany(
         {
             include : {
                 organization : true
             }
         }
     );
-    await Promise.all(repos.map(async (repo)=> {
+    await Promise.all(repos.map(async (repo:any)=> {
         try{
             const issues = await octokit.rest.issues.listForRepo(
                 {
@@ -24,7 +23,7 @@ async function seedIssues(){
                     owner : repo.organization.githubUrl!.replace("https://github.com/", "")
                 }
             )
-            await prisma.issue.createMany({
+            await db.issue.createMany({
                 data : issues.data.map((issue:any)=> ({
                     title : issue.title,
                     number : issue.number,

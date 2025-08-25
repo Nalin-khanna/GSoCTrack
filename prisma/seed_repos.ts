@@ -1,14 +1,12 @@
-import { PrismaClient, Prisma } from "../app/generated/prisma";
+import { db } from "@/lib/prisma";
 import { Octokit } from "@octokit/rest";
-
-const prisma = new PrismaClient();
-
+import { Organization } from "@/app/generated/prisma";
 const octokit = new Octokit({ 
     auth: process.env.GITHUB_TOKEN,
   });
 
 async function seedRepos() {
-    const orgs = await prisma.organization.findMany({
+    const orgs = await db.organization.findMany({
         where : {
             AND: [
                 { githubUrl: { not: "" } },
@@ -17,7 +15,7 @@ async function seedRepos() {
         }
     })
 
-    await Promise.all(orgs.map(async (organization) => {
+    await Promise.all(orgs.map(async (organization:Organization) => {
 
         try{
             const orgName = organization.githubUrl!.replace("https://github.com/", "");
@@ -36,7 +34,7 @@ async function seedRepos() {
                     organizationId: organization.id
                 }));
     
-                await prisma.repo.createMany({
+                await db.repo.createMany({
                     data : repoData,
                     skipDuplicates : true
                 })
@@ -62,5 +60,5 @@ seedRepos()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await db.$disconnect();
   });
